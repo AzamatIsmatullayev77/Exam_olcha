@@ -7,6 +7,7 @@ from olcha.serializers import (
     ProductModelSerializer, ImageSerializer, CommentSerializer,
     CategorySerializer, Category1Serializer
 )
+from olcha.pagination import CustomPagination
 
 class Category1ViewSet(viewsets.ModelViewSet):
     queryset = Category1.objects.all()
@@ -22,6 +23,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
 
+
+
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductModelSerializer
@@ -29,16 +32,18 @@ class ProductViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['title']
 
+    pagination_class = CustomPagination
+
     def list(self, request, *args, **kwargs):
-        cache_key = f"product_list:{request.query_params.get('search', '')}"
+        page = request.query_params.get('page', 1)  # page parametri
+        cache_key = f"product_list:{request.query_params.get('search', '')}:page={page}"
         data = cache.get(cache_key)
         if data is not None:
             return Response(data)
 
         response = super().list(request, *args, **kwargs)
-        cache.set(cache_key, response.data, timeout=60*10)  # 10 daqiqa
+        cache.set(cache_key, response.data, timeout=60 * 10)  # 10 daqiqa
         return response
-
 
 class ImageViewSet(viewsets.ModelViewSet):
     queryset = Images.objects.all()
@@ -64,3 +69,4 @@ class CommentByProductViewSet(viewsets.ViewSet):
         comments = Comment.objects.filter(product_id=pk)
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
+
