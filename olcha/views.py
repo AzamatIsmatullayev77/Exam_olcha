@@ -1,4 +1,6 @@
 from rest_framework import viewsets, filters
+from django.core.cache import cache
+from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated,IsAuthenticatedOrReadOnly
 from olcha.models import Product, Images, Comment, Category1, Category
 from olcha.serializers import (
@@ -26,6 +28,16 @@ class ProductViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [filters.SearchFilter]
     search_fields = ['title']
+
+    def list(self, request, *args, **kwargs):
+        cache_key = f"product_list:{request.query_params.get('search', '')}"
+        data = cache.get(cache_key)
+        if data is not None:
+            return Response(data)
+
+        response = super().list(request, *args, **kwargs)
+        cache.set(cache_key, response.data, timeout=60*10)  # 10 daqiqa
+        return response
 
 
 class ImageViewSet(viewsets.ModelViewSet):
