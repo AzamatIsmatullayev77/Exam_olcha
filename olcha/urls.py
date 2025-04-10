@@ -15,6 +15,5 @@ router.register(r'images', ImageViewSet)
 router.register(r'comments', CommentViewSet)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('', include(router.urls)),
 ]

@@ -110,12 +110,17 @@ USE_I18N = True
 USE_TZ = True
 
 # Static and Media files
-STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'staticfiles'),
-]
 
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+STATIC_URL = '/static/'  # ⚠️ bu yerda '/' bilan tugashi kerak
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # bu yerga collectstatic natijasida fayllar ko‘chadi
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # bu yerda sen o'zing joylashtirgan static fayllar bo'ladi
+]
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'olcha/media/')
 
